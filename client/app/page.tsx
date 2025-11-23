@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import Navbar from "@/components/Navbar";
 import { useAccount, useBalance } from 'wagmi'
 import { useAppKitAccount, useAppKit } from '@reown/appkit/react'
@@ -91,16 +92,26 @@ export default function Home() {
           {/* Wallet Status Dashboard */}
           {isConnected && (
             <div className="bg-gradient-to-br from-gray-800/90 via-purple-900/30 to-gray-800/90 backdrop-blur-sm border border-purple-500/30 rounded-2xl p-8 mb-16 shadow-2xl">
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
                 <h2 className="text-3xl font-bold text-white">
                   Wallet Dashboard
                 </h2>
-                <div className="flex items-center gap-2 px-4 py-2 bg-green-500/20 border border-green-500/50 rounded-full">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium text-green-400">Connected</span>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-green-500/20 border border-green-500/50 rounded-full">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium text-green-400">Connected</span>
+                  </div>
+                  <Link
+                    href="/dashboard"
+                    prefetch={true}
+                    className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg transition-all duration-200 font-medium shadow-lg shadow-blue-500/30 flex items-center gap-2"
+                  >
+                    <span className="text-lg" aria-hidden="true">📊</span>
+                    <span>View Analytics</span>
+                  </Link>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
                   <p className="text-sm text-gray-400 mb-2">Wallet Address</p>

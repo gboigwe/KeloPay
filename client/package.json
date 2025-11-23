@@ -6,20 +6,33 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/client": "^7.0.0",
     "@reown/appkit": "^1.8.12",
     "@reown/appkit-adapter-ethers": "^1.8.12",
     "@reown/appkit-adapter-wagmi": "^1.8.12",
     "@tanstack/react-query": "^5.90.5",
+    "alchemy-sdk": "^3.6.5",
     "ethers": "^6.15.0",
     "next": "16.0.1",
+    "next-auth": "^5.0.0-beta.30",
+    "prisma": "^7.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-toastify": "^11.0.5",
+    "siwe": "^3.0.0",
     "viem": "^2.38.5",
-    "wagmi": "^2.19.2"
+    "wagmi": "^2.19.2",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -29,6 +42,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
     "tailwindcss": "^4",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

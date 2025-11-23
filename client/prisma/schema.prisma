@@ -1,0 +1,173 @@
+// KeloPay Database Schema
+// Analytics dashboard backend
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model with wallet integration
+model User {
+  id            String   @id @default(cuid())
+  walletAddress String   @unique
+  email         String?  @unique
+  role          UserRole @default(USER)
+
+  // Social auth (via Reown AppKit)
+  socialProvider String?
+  kycStatus      KycStatus @default(PENDING)
+  region         String?
+
+  // Merchant info
+  merchantId     String?
+  merchantName   String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  transactions  Transaction[]
+  sessions      Session[]
+  accounts      Account[]
+
+  @@index([walletAddress])
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+// Transaction model - core data
+model Transaction {
+  id            String   @id @default(cuid())
+
+  // User relation
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Blockchain data
+  txHash        String   @unique
+  blockNumber   BigInt
+  timestamp     DateTime
+  network       String   // ethereum, base, arbitrum, lisk, bsc
+  chainId       Int
+
+  // Transaction details
+  type          TransactionType
+  status        TransactionStatus @default(PENDING)
+
+  // Addresses
+  fromAddress   String
+  toAddress     String
+
+  // Token info (crypto)
+  fromTokenSymbol   String
+  fromTokenAddress  String
+  fromTokenAmount   String  // Stored as string to handle big numbers
+  fromTokenDecimals Int
+
+  // Fiat info (conversion)
+  toFiatCurrency String?  // USD, NGN, EUR, etc.
+  toFiatAmount   Decimal? @db.Decimal(20, 8)
+  exchangeRate   Decimal? @db.Decimal(20, 8)
+
+  // Fees
+  gasFeeWei      String   // Wei amount
+  gasFeeUSD      Decimal  @db.Decimal(20, 8)
+  platformFeeUSD Decimal? @db.Decimal(20, 8)
+
+  // Merchant (if applicable)
+  merchantId     String?
+  merchantName   String?
+
+  // Metadata
+  metadata       Json?
+  errorMessage   String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([txHash])
+  @@index([network])
+  @@index([status])
+  @@index([type])
+  @@index([timestamp])
+  @@index([merchantId])
+  @@map("transactions")
+}
+
+// NextAuth.js models for authentication
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  OPERATIONS
+  GROWTH
+  MERCHANT
+  USER
+}
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  CONVERSION
+  PAYMENT
+  TRANSFER
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
